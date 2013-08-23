@@ -7,10 +7,12 @@ import java.util.Scanner;
 public class Dictionary
 {
 	public static Hashtable<Integer, ArrayList<String>> dictionary;
+	public static int size;
 	
 	public Dictionary()
 	{
 		dictionary = new Hashtable<Integer, ArrayList<String>>();
+		size = 0;
 	}
 
 	public void fillDictionary () throws FileNotFoundException
@@ -34,6 +36,7 @@ public class Dictionary
 			if ( pack_word ) continue;
 			
 			addToDictionary( input );
+			size ++;
 		}
 		
 		//System.out.println ( dictionary );

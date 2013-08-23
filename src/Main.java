@@ -13,6 +13,7 @@ public class Main
 		Dictionary my_dictionary = new Dictionary ();
 		// Filling the dictionary
 		my_dictionary.fillDictionary();
+		System.out.println ("Dictionary size " + my_dictionary.size );
 		
 		/*
 		 * 1. Get input
@@ -22,6 +23,7 @@ public class Main
 		// Taking the user input 
 		Scanner jin = new Scanner ( System.in );
 		String user_input = jin.next();
+		user_input = user_input.toLowerCase();
 		
 		// A list for the output
 		ArrayList<String> output_list = new ArrayList<String>();
@@ -33,7 +35,12 @@ public class Main
 			for ( String s : possibility_list )
 			{
 				int edit_dist = LD.getLD( s, user_input);
-				if (  edit_dist < Global.MAX_DIST && edit_dist != 0 )
+				if ( edit_dist == 0 )
+				{
+					System.out.println ( "Word is already correct" );
+					System.exit(0);
+				}
+				if (  edit_dist < Global.MAX_DIST )
 					output_list.add( s );
 			}
 		}
