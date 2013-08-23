@@ -36,7 +36,7 @@ public class Dictionary
 			addToDictionary( input );
 		}
 		
-		System.out.println ( dictionary );
+		//System.out.println ( dictionary );
 		
 		
 	}	
