@@ -13,7 +13,7 @@ public class Main
 		Dictionary my_dictionary = new Dictionary ();
 		// Filling the dictionary
 		my_dictionary.fillDictionary();
-		System.out.println ("Dictionary size " + my_dictionary.size );
+		System.out.println ("Dictionary size " +Dictionary.size );
 		
 		/*
 		 * 1. Get input
@@ -31,7 +31,7 @@ public class Main
 		// Giving an error in the length by 3 units
 		for ( int i = Math.max(user_input.length() - 3,1); i < user_input.length() + 3; i++ )
 		{
-			ArrayList<String> possibility_list = my_dictionary.dictionary.get(i);
+			ArrayList<String> possibility_list =Dictionary.dictionary.get(i);
 			for ( String s : possibility_list )
 			{
 				int edit_dist = LD.getLD( s, user_input);
