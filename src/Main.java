@@ -29,7 +29,7 @@ public class Main
 		ArrayList<String> output_list = new ArrayList<String>();
 		
 		// Giving an error in the length by 3 units
-		for ( int i = user_input.length() - 3; i < user_input.length() + 3; i++ )
+		for ( int i = Math.max(user_input.length() - 3,1); i < user_input.length() + 3; i++ )
 		{
 			ArrayList<String> possibility_list = my_dictionary.dictionary.get(i);
 			for ( String s : possibility_list )
