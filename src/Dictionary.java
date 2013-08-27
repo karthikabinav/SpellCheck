@@ -4,57 +4,47 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
 
-public class Dictionary
-{
+public class Dictionary {
 	public static Hashtable<Integer, ArrayList<String>> dictionary;
 	public static int size;
-	
-	public Dictionary()
-	{
+
+	public Dictionary() {
 		dictionary = new Hashtable<Integer, ArrayList<String>>();
 		size = 0;
 	}
 
-	public void fillDictionary () throws FileNotFoundException
-	{
-		File f = new File ( "/usr/share/dict/words" );
-		Scanner fin = new Scanner ( f );
-		
-		while ( fin.hasNext() )
-		{
+	public void fillDictionary() throws FileNotFoundException {
+		File f = new File("/usr/share/dict/words");
+		Scanner fin = new Scanner(f);
+
+		while (fin.hasNext()) {
 			String input = fin.next();
 			boolean pack_word = false;
-			for ( int i = 0; i < input.length(); i++ )
-			{
+			for (int i = 0; i < input.length(); i++) {
 				// XXX May use some other condition here
-				if ( input.charAt(i) < 'a' || input.charAt(i) > 'z' )
-				{
+				if (input.charAt(i) < 'a' || input.charAt(i) > 'z') {
 					pack_word = true;
 					break;
 				}
 			}
-			if ( pack_word ) continue;
-			
-			addToDictionary( input );
-			size ++;
+			if (pack_word)
+				continue;
+
+			addToDictionary(input);
+			size++;
 		}
-		
-		//System.out.println ( dictionary );
-		
-		
-	}	
-	
-	
-	public void addToDictionary(String a)
-	{
-		if (dictionary.containsKey(a.length()))
-		{
+		fin.close();
+		// System.out.println ( dictionary );
+
+	}
+
+	public void addToDictionary(String a) {
+		if (dictionary.containsKey(a.length())) {
 			dictionary.get(a.length()).add(a);
-		} else
-		{
+		} else {
 			ArrayList<String> list = new ArrayList<String>();
 			list.add(a);
-			dictionary.put(a.length(), list );
+			dictionary.put(a.length(), list);
 		}
 
 	}
