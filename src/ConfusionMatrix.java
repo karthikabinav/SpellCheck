@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.File;
+import java.math.BigInteger;
 import java.util.Scanner;
 
 public class ConfusionMatrix {
@@ -7,6 +8,55 @@ public class ConfusionMatrix {
 	public int SubMatrix[][] = new int[27][27];
 	public int DelMatrix[][] = new int[27][27];
 	public int RevMatrix[][] = new int[27][27];
+
+	public double addProb[][] = new double[27][27];
+	public double subProb[][] = new double[27][27];
+	public double delProb[][] = new double[27][27];
+	public double revProb[][] = new double[27][27];
+
+	public long addCount;
+	public long subCount;
+	public long delCount;
+	public long revCount;
+
+	public void printAddMatrix() {
+		int i, j;
+		for (i = 0; i < 27; i++) {
+			for (j = 0; j < 26; j++)
+				System.out.print(AddMatrix[i][j] + " ");
+			System.out.println();
+		}
+
+	}
+
+	public void printSubMatrix() {
+		int i, j;
+		for (i = 0; i < 26; i++) {
+			for (j = 0; j < 26; j++)
+				System.out.print(SubMatrix[i][j] + " ");
+			System.out.println();
+		}
+	}
+
+	public void printDelMatrix() {
+		int i, j;
+		for (i = 0; i < 27; i++) {
+			for (j = 0; j < 26; j++)
+				System.out.print(DelMatrix[i][j] + " ");
+			System.out.println();
+
+		}
+
+	}
+
+	public void printRevMatrix() {
+		int i, j;
+		for (i = 0; i < 26; i++) {
+			for (j = 0; j < 26; j++)
+				System.out.print(RevMatrix[i][j] + " ");
+			System.out.println();
+		}
+	}
 
 	public void readAddMatrix(String fileName) throws FileNotFoundException {
 		File f = new File(fileName);
@@ -58,6 +108,60 @@ public class ConfusionMatrix {
 
 		}
 		fin.close();
+	}
+
+	// Convert counts to prob
+	public void convertProb() {
+		long count = 0;
+		int i, j;
+		for (i = 0; i < 27; i++) {
+			for (j = 0; j < 26; j++) {
+				count += AddMatrix[i][j];
+			}
+		}
+		addCount = count;
+		for (i = 0; i < 27; i++) {
+			for (j = 0; j < 26; j++) {
+				addProb[i][j] = AddMatrix[i][j] * 1.0 / count;
+			}
+		}
+		count = 0;
+		for (i = 0; i < 27; i++) {
+			for (j = 0; j < 26; j++) {
+				count += DelMatrix[i][j];
+			}
+		}
+		delCount = count;
+		for (i = 0; i < 27; i++) {
+			for (j = 0; j < 26; j++) {
+				delProb[i][j] = DelMatrix[i][j] * 1.0 / count;
+			}
+		}
+		count = 0;
+		for (i = 0; i < 26; i++) {
+			for (j = 0; j < 26; j++) {
+				count += SubMatrix[i][j];
+			}
+		}
+		subCount = count;
+		for (i = 0; i < 26; i++) {
+			for (j = 0; j < 26; j++) {
+				subProb[i][j] = SubMatrix[i][j] * 1.0 / count;
+			}
+		}
+		count = 0;
+		for (i = 0; i < 26; i++) {
+			for (j = 0; j < 26; j++) {
+				count += RevMatrix[i][j];
+			}
+		}
+		revCount = count;
+		for (i = 0; i < 26; i++) {
+			for (j = 0; j < 26; j++) {
+				revProb[i][j] = RevMatrix[i][j] * 1.0 / count;
+			}
+		}
+
 	}
 
 	// Laplace smoothing.
