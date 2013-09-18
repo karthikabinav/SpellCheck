@@ -1,6 +1,14 @@
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+class Pair {
+	public String word;
+	public BigInteger prob;
+
+}
 
 public class Main {
 
@@ -11,6 +19,17 @@ public class Main {
 		// Filling the dictionary
 		my_dictionary.fillDictionary();
 		System.out.println("Dictionary size " + Dictionary.size);
+
+		// Read from the Confusion Matrix
+		ConfusionMatrix matrix = new ConfusionMatrix();
+		matrix.readAddMatrix("addXY");
+		matrix.readSubMatrix("subXY");
+		matrix.readDelMatrix("delXY");
+		matrix.readRevMatrix("revXY");
+		matrix.smoothMatrix();
+		matrix.convertProb();
+
+		// matrix.printDelMatrix();
 
 		/*
 		 * 1. Get input 2. Search the dictionary for length-3 to length+3 3. Run
@@ -23,31 +42,37 @@ public class Main {
 
 		// A list for the output
 		ArrayList<String> output_list = new ArrayList<String>();
+		ArrayList<Pair> suggestions = new ArrayList<Pair>();
 
 		// Giving an error in the length by 3 units
 		for (int i = Math.max(user_input.length() - 3, 1); i < user_input
 				.length() + 3; i++) {
 			ArrayList<String> possibility_list = Dictionary.dictionary.get(i);
 			for (String s : possibility_list) {
-				int edit_dist = LD.getLD(s, user_input);
+				int edit_dist = LD.getLD(s, user_input, matrix);
+				Pair p = new Pair();
+				// int edit_dist = 0;
 				if (edit_dist == 0) {
 					System.out.println("Word is already correct");
 					System.exit(0);
 				}
-				if (edit_dist < Global.MAX_DIST)
+				if (edit_dist < Global.MAX_DIST) {
 					output_list.add(s);
+					p.prob = LD.prob;
+					p.word = s;
+					suggestions.add(p);
+				}
 			}
 		}
 		// Once we have the output list, we need to assign probabilities to them
 		// The one with the highest probability will be displayed as correction
+		// System.out.println(LD.prob);
+		for (Pair p : suggestions) {
+			System.out.println("Word: " + p.word + " " + "Prob: " + p.prob);
+		}
 
-		// Read from the Confusion Matrix
-		ConfusionMatrix matrix = new ConfusionMatrix();
-		matrix.readAddMatrix("addXY");
-		matrix.readSubMatrix("subXY");
-		matrix.readDelMatrix("delXY");
-		matrix.readRevMatrix("revXY");
-		System.out.println(output_list);
+		//Probabilites given in terms of BigInteger numbers. The one with the highest will be
+		// chosen as the suggestion
 		jin.close();
 	}
 
