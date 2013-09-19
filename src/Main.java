@@ -71,7 +71,8 @@ public class Main {
 			System.out.println("Word: " + p.word + " " + "Prob: " + p.prob);
 		}
 
-		//Probabilites given in terms of BigInteger numbers. The one with the highest will be
+		// Probabilites given in terms of BigInteger numbers. The one with the
+		// highest will be
 		// chosen as the suggestion
 		jin.close();
 	}
