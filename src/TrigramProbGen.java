@@ -10,42 +10,51 @@ import com.sun.corba.se.impl.resolver.SplitLocalResolverImpl;
 
 public class TrigramProbGen
 {
+	/* Hashtables to keep track of the counts of biwords and triwords */
 	public static Hashtable<Biword, Integer> biwordCount;
 	public static Hashtable<Triword, Integer> triwordCount;
 
+	/*
+	 * Hashtable to keep track of the parts of speech for a given word and words
+	 * for a given part of speech
+	 */
 	public static Hashtable<String, ArrayList<String>> partsOfSpeech;
-	public static Hashtable<String, ArrayList<String>> pos_to_words;
+	public static Hashtable<String, ArrayList<String>> wordsOfPos;
 
+	/* In this function, we initialize the above four hashtables */
 	public static void initialize() throws FileNotFoundException
 	{
+		// Allocating Memory
 		biwordCount = new Hashtable<Biword, Integer>();
 		triwordCount = new Hashtable<Triword, Integer>();
 		partsOfSpeech = new Hashtable<String, ArrayList<String>>();
-		pos_to_words = new Hashtable<String, ArrayList<String>>();
+		wordsOfPos = new Hashtable<String, ArrayList<String>>();
 
-		// -- Building the counts
+		// Reading the corpus
 		File f = new File("brown/ca04");
 		Scanner posin = new Scanner(f);
 
 		while (posin.hasNext())
-		{ // -- Here is where we must build the
+		{
+			// Here is where we must build the Parts of speech
 			String s = posin.next();
 			String[] s_split = s.split("[/+]");
-			// -- s_split[1+] contains the pos tag for string
+			// s_split[1+] contains the pos tag for string
 			for (int i = 0; i < s_split.length; i++)
 				s_split[i] = s_split[i].toLowerCase();
 
-			add_to_partsOfSpeech(s_split);
-			add_to_pos_to_words(s_split);
+			addToPartsOfSpeech(s_split);
+			addToWordsOfPos(s_split);
 		}
 
 		posin = new Scanner(f);
 
 		while (posin.hasNext())
-		{ // -- Here is where we must build the
+		{
+			// Here is where we must build the triword and biword counts
 			String s = posin.nextLine();
 			String[] s_split = s.split(" ");
-			// -- Starting from 3 because we want to ignore the tab in the front
+			// Starting from 3 because we want to ignore the tab in the front
 			// of the line
 			for (int i = 3; i < s_split.length; i++)
 			{
@@ -59,61 +68,61 @@ public class TrigramProbGen
 				Triword tw = new Triword(word_1, word_2, word_3);
 				Biword bw = new Biword(word_1, word_2);
 
-				update_triword_count(tw);
-				update_biword_count(bw);
+				updateTriwordCount(tw);
+				updateBiwordCount(bw);
 
 				if (i == s_split.length - 1)
 				{
 					Biword biword = new Biword(word_2, word_3);
-					update_biword_count(biword);
+					updateBiwordCount(biword);
 				}
 			}
 
 		}
 
-		System.out.println(pos_to_words);
+		System.out.println(wordsOfPos);
 	}
 
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		// -- In the initialize phase, we learn the trigram probabilities for
+		// In the initialize phase, we learn the trigram probabilities for
 		// parts of speech
-		// -- and fill in a hashtable that contains the mapping from each word
+		// and fill in a hashtable that contains the mapping from each word
 		// to a list of
-		// -- parts of speech that it is associated with. We also fill up the
+		// parts of speech that it is associated with. We also fill up the
 		// trigram and bigram counts
-		// -- for all these parts of speech combinations.
+		// for all these parts of speech combinations.
 		initialize();
 
-		// -- What we essentially need to do is to take a particular phrase/
+		// What we essentially need to do is to take a particular phrase/
 		// sentence, and first detect
-		// -- if there is some misspelling. If there is no misspelling, we
+		// if there is some misspelling. If there is no misspelling, we
 		// assume that the sentence is
-		// -- correct. We check the misspelling by searching against the default
+		// correct. We check the misspelling by searching against the default
 		// dictionary present in ubuntu
-		// -- If there is a misspelling, we need to correct it. So for that, we
+		// If there is a misspelling, we need to correct it. So for that, we
 		// first need to get a set
-		// -- of candidate replacements. In other words, the confusion set that
+		// of candidate replacements. In other words, the confusion set that
 		// we define is the list of
-		// -- words that are close to the misspelt word in terms of the results
+		// words that are close to the misspelt word in terms of the results
 		// obtained from the first
-		// -- phase of the assignment.
-		// -- Once we have a confusion set, we can apply our method.
-		// -- Suppose the original sentence was S = w1, w2, w3 ..... wn, and
+		// phase of the assignment.
+		// Once we have a confusion set, we can apply our method.
+		// Suppose the original sentence was S = w1, w2, w3 ..... wn, and
 		// suppose the misspelt word was
-		// -- wi. Then we look at the confusion set of wi. We replace every word
+		// wi. Then we look at the confusion set of wi. We replace every word
 		// wi' from the confusion set
-		// -- and calculate the probability of the sentence P(S'). The word that
+		// and calculate the probability of the sentence P(S'). The word that
 		// is finally replaced/suggested
-		// -- is the word with the highest such probability.
-		// -- Now we need a method to calculate P(S). This is done using the
+		// is the word with the highest such probability.
+		// Now we need a method to calculate P(S). This is done using the
 		// trigrams in the following way.
-		// -- We have P(S) = Sigma P(S,T), where P(S,T) is the probability that
+		// We have P(S) = Sigma P(S,T), where P(S,T) is the probability that
 		// blah balh and so on
 
 	}
 
-	public static double prob_of_triword_given_biword(Triword tw, Biword bw)
+	public static double probOfTwGivenBw(Triword tw, Biword bw)
 	{
 		if (!tw.contains(bw))
 		{
@@ -125,22 +134,20 @@ public class TrigramProbGen
 
 	}
 
-	public static Probab prob_of_w_given_t(String w, String t)
+	public static Probab probOfWGivenT(String w, String t)
 	{
-		// -- If the Hashtable does not contain the tag, then prob is the
-		// smoothened one
-		if (!pos_to_words.contains(t))
+		if (!wordsOfPos.contains(t))
 		{
 			System.out.println("Tag " + t + " is not in hashtable at all!");
 			System.exit(1);
 		}
-		ArrayList<String> list = pos_to_words.get(t);
+		ArrayList<String> list = wordsOfPos.get(t);
 		int word_count = 0;
 		for (String word : list)
 			if (word.equals(w))
 				word_count++;
 
-		// -- Here we also account for smoothing
+		// Here we also account for smoothing
 		return (word_count + 1) / (double) (2 * list.size());
 	}
 
@@ -152,18 +159,20 @@ public class TrigramProbGen
 		Triword tw = new Triword("a", "b", "c");
 		Triword tw2 = new Triword("a", "b", "c");
 
-		update_biword_count(bw2);
-		update_biword_count(bw);
+		updateBiwordCount(bw2);
+		updateBiwordCount(bw);
 
-		update_triword_count(tw2);
-		update_triword_count(tw);
+		updateTriwordCount(tw2);
+		updateTriwordCount(tw);
 
 		System.out.println(biwordCount);
 		System.out.println(triwordCount);
 	}
 
-	private static void update_biword_count(Biword bw)
+	private static void updateBiwordCount(Biword bw)
 	{
+		/* If the biword hashtable contains the Biword, update the count
+		 * Else insert newly into it */
 		if (biwordCount.containsKey(bw))
 		{
 			int count = biwordCount.get(bw);
@@ -176,8 +185,10 @@ public class TrigramProbGen
 
 	}
 
-	private static void update_triword_count(Triword tw)
+	private static void updateTriwordCount(Triword tw)
 	{
+		/* If the triword hashtable contains the Triword, update the count
+		 * Else insert newly into it */
 		if (triwordCount.containsKey(tw))
 		{
 			int count = triwordCount.get(tw);
@@ -190,7 +201,7 @@ public class TrigramProbGen
 
 	}
 
-	private static void add_to_partsOfSpeech(String[] s)
+	private static void addToPartsOfSpeech(String[] s)
 	{
 		for (int i = 1; i < s.length; i++)
 		{
@@ -206,17 +217,17 @@ public class TrigramProbGen
 
 	}
 
-	private static void add_to_pos_to_words(String[] s)
+	private static void addToWordsOfPos(String[] s)
 	{
 		for (int i = 1; i < s.length; i++)
 		{
-			if (pos_to_words.containsKey(s[i]))
-				pos_to_words.get(s[i]).add(s[0]);
+			if (wordsOfPos.containsKey(s[i]))
+				wordsOfPos.get(s[i]).add(s[0]);
 			else
 			{
 				ArrayList<String> list = new ArrayList<String>();
 				list.add(s[0]);
-				pos_to_words.put(s[i], list);
+				wordsOfPos.put(s[i], list);
 			}
 		}
 
