@@ -31,55 +31,62 @@ public class TrigramProbGen
 		wordsOfPos = new Hashtable<String, ArrayList<String>>();
 
 		// Reading the corpus
-		File f = new File("brown/ca04");
-		Scanner posin = new Scanner(f);
+		File filenames = new File("brown/filenames");
+		Scanner files_in = new Scanner(filenames);
 
-		while (posin.hasNext())
+		while (files_in.hasNext())
 		{
-			// Here is where we must build the Parts of speech
-			String s = posin.next();
-			String[] s_split = s.split("[/+]");
-			// s_split[1+] contains the pos tag for string
-			for (int i = 0; i < s_split.length; i++)
-				s_split[i] = s_split[i].toLowerCase();
+			String next_file =  files_in.next();
+			File f = new File("brown/" + next_file);
+			Scanner posin = new Scanner(f);
 
-			addToPartsOfSpeech(s_split);
-			addToWordsOfPos(s_split);
-		}
-
-		posin = new Scanner(f);
-
-		while (posin.hasNext())
-		{
-			// Here is where we must build the triword and biword counts
-			String s = posin.nextLine();
-			String[] s_split = s.split(" ");
-			// Starting from 3 because we want to ignore the tab in the front
-			// of the line
-			for (int i = 3; i < s_split.length; i++)
+			while (posin.hasNext())
 			{
-				String word_1 = partsOfSpeech.get(
-						s_split[i - 2].split("/")[0].toLowerCase()).get(0);
-				String word_2 = partsOfSpeech.get(
-						s_split[i - 1].split("/")[0].toLowerCase()).get(0);
-				String word_3 = partsOfSpeech.get(
-						s_split[i].split("/")[0].toLowerCase()).get(0);
+				// Here is where we must build the Parts of speech
+				String s = posin.next();
+				String[] s_split = s.split("[/+]");
+				// s_split[1+] contains the pos tag for string
+				for (int i = 0; i < s_split.length; i++)
+					s_split[i] = s_split[i].toLowerCase();
 
-				Triword tw = new Triword(word_1, word_2, word_3);
-				Biword bw = new Biword(word_1, word_2);
-
-				updateTriwordCount(tw);
-				updateBiwordCount(bw);
-
-				if (i == s_split.length - 1)
-				{
-					Biword biword = new Biword(word_2, word_3);
-					updateBiwordCount(biword);
-				}
+				addToPartsOfSpeech(s_split);
+				addToWordsOfPos(s_split);
 			}
 
-		}
+			posin = new Scanner(f);
 
+			while (posin.hasNext())
+			{
+				// Here is where we must build the triword and biword counts
+				String s = posin.nextLine();
+				String[] s_split = s.split(" ");
+				// Starting from 3 because we want to ignore the tab in the
+				// front
+				// of the line
+				for (int i = 3; i < s_split.length; i++)
+				{
+					String word_1 = partsOfSpeech.get(
+							s_split[i - 2].split("/")[0].toLowerCase()).get(0);
+					String word_2 = partsOfSpeech.get(
+							s_split[i - 1].split("/")[0].toLowerCase()).get(0);
+					String word_3 = partsOfSpeech.get(
+							s_split[i].split("/")[0].toLowerCase()).get(0);
+
+					Triword tw = new Triword(word_1, word_2, word_3);
+					Biword bw = new Biword(word_1, word_2);
+
+					updateTriwordCount(tw);
+					updateBiwordCount(bw);
+
+					if (i == s_split.length - 1)
+					{
+						Biword biword = new Biword(word_2, word_3);
+						updateBiwordCount(biword);
+					}
+				}
+
+			}
+		}
 		System.out.println(wordsOfPos);
 	}
 
@@ -122,34 +129,34 @@ public class TrigramProbGen
 
 	}
 
-	public static double probOfTwGivenBw(Triword tw, Biword bw)
-	{
-		if (!tw.contains(bw))
-		{
-			System.out.println("Biword not in Triword. Fix the bulb");
-			System.exit(1);
-		}
-		if (triwordCount.containsKey(tw))
-			return triwordCount.get(tw) + 1 / (double) biwordCount.get(bw);
-
-	}
-
-	public static Probab probOfWGivenT(String w, String t)
-	{
-		if (!wordsOfPos.contains(t))
-		{
-			System.out.println("Tag " + t + " is not in hashtable at all!");
-			System.exit(1);
-		}
-		ArrayList<String> list = wordsOfPos.get(t);
-		int word_count = 0;
-		for (String word : list)
-			if (word.equals(w))
-				word_count++;
-
-		// Here we also account for smoothing
-		return (word_count + 1) / (double) (2 * list.size());
-	}
+//	public static double probOfTwGivenBw(Triword tw, Biword bw)
+//	{
+//		if (!tw.contains(bw))
+//		{
+//			System.out.println("Biword not in Triword. Fix the bulb");
+//			System.exit(1);
+//		}
+//		if (triwordCount.containsKey(tw))
+//			return triwordCount.get(tw) + 1 / (double) biwordCount.get(bw);
+//
+//	}
+//
+//	public static Probab probOfWGivenT(String w, String t)
+//	{
+//		if (!wordsOfPos.contains(t))
+//		{
+//			System.out.println("Tag " + t + " is not in hashtable at all!");
+//			System.exit(1);
+//		}
+//		ArrayList<String> list = wordsOfPos.get(t);
+//		int word_count = 0;
+//		for (String word : list)
+//			if (word.equals(w))
+//				word_count++;
+//
+//		// Here we also account for smoothing
+//		return (word_count + 1) / (double) (2 * list.size());
+//	}
 
 	private static void test()
 	{
@@ -171,8 +178,10 @@ public class TrigramProbGen
 
 	private static void updateBiwordCount(Biword bw)
 	{
-		/* If the biword hashtable contains the Biword, update the count
-		 * Else insert newly into it */
+		/*
+		 * If the biword hashtable contains the Biword, update the count Else
+		 * insert newly into it
+		 */
 		if (biwordCount.containsKey(bw))
 		{
 			int count = biwordCount.get(bw);
@@ -187,8 +196,10 @@ public class TrigramProbGen
 
 	private static void updateTriwordCount(Triword tw)
 	{
-		/* If the triword hashtable contains the Triword, update the count
-		 * Else insert newly into it */
+		/*
+		 * If the triword hashtable contains the Triword, update the count Else
+		 * insert newly into it
+		 */
 		if (triwordCount.containsKey(tw))
 		{
 			int count = triwordCount.get(tw);
