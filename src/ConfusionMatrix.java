@@ -20,6 +20,18 @@ public class ConfusionMatrix {
 	public long delCount;
 	public long revCount;
 
+	public void init() throws FileNotFoundException {
+		Dictionary my_dictionary = new Dictionary();
+		my_dictionary.fillDictionary();
+
+		this.readAddMatrix("addXY");
+		this.readSubMatrix("subXY");
+		this.readDelMatrix("delXY");
+		this.readRevMatrix("revXY");
+		this.smoothMatrix();
+		this.convertProb();
+	}
+
 	public ArrayList<String> getSuggestions(String input) {
 		// A list for the output
 		ArrayList<String> output_list = new ArrayList<String>();

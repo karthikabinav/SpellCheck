@@ -15,21 +15,8 @@ public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
 		// Initializing instances of the necessary classes
 		LevenshteinDistance LD = new LevenshteinDistance();
-		Dictionary my_dictionary = new Dictionary();
-		// Filling the dictionary
-		my_dictionary.fillDictionary();
-		System.out.println("Dictionary size " + Dictionary.size);
-
-		// Read from the Confusion Matrix
 		ConfusionMatrix matrix = new ConfusionMatrix();
-		matrix.readAddMatrix("addXY");
-		matrix.readSubMatrix("subXY");
-		matrix.readDelMatrix("delXY");
-		matrix.readRevMatrix("revXY");
-		matrix.smoothMatrix();
-		matrix.convertProb();
-
-		// matrix.printDelMatrix();
+		matrix.init();
 
 		/*
 		 * 1. Get input 2. Search the dictionary for length-3 to length+3 3. Run
