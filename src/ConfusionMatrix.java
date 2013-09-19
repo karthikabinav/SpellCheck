@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ConfusionMatrix {
@@ -18,6 +19,30 @@ public class ConfusionMatrix {
 	public long subCount;
 	public long delCount;
 	public long revCount;
+
+	public ArrayList<String> getSuggestions(String input) {
+		// A list for the output
+		ArrayList<String> output_list = new ArrayList<String>();
+		LevenshteinDistance LD = new LevenshteinDistance();
+
+		// Giving an error in the length by 3 units
+		for (int i = Math.max(input.length() - 3, 1); i < input.length() + 3; i++) {
+			ArrayList<String> possibility_list = Dictionary.dictionary.get(i);
+			for (String s : possibility_list) {
+				int edit_dist = LD.getLD(s, input, this);
+				if (edit_dist == 0) {
+					System.out.println("Word is already correct");
+					System.exit(0);
+				}
+				if (edit_dist < Global.MAX_DIST) {
+					output_list.add(s);
+				}
+			}
+		}
+
+		return output_list;
+
+	}
 
 	public void printAddMatrix() {
 		int i, j;
