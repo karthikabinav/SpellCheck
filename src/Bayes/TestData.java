@@ -23,6 +23,15 @@ public class TestData {
 		post = new PartsOfSpeech();
 	}
 
+	// intersection of the words context with the current context
+	// TODO: the function definition
+	private static int getIntersection(String word, ArrayList<String> contextWord,
+			ArrayList<String> contextPOS, ArrayList<String> coOccurenceWord,
+			ArrayList<String> coOccurencePOS) {
+
+		return 0;
+	}
+
 	private static ArrayList<String> getCandidates(String input) {
 		ArrayList<String> suggestions = new ArrayList<String>();
 
@@ -102,6 +111,10 @@ public class TestData {
 
 		// Getting candidates baseed on Edit distance
 		ArrayList<String> candidates = getCandidates(misSpelt);
+		for (String cand : candidates) {
+			int rank = getIntersection(cand, contextWord, contextPOS,
+					coOccurenceWord, coOccurencePOS);
+		}
 
 		return correction;
 	}
