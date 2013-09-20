@@ -1,15 +1,18 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Dictionary {
 	public static Hashtable<Integer, ArrayList<String>> dictionary;
+	public static HashSet <String> dictionarySet;
 	public static int size;
 
 	public Dictionary() {
 		dictionary = new Hashtable<Integer, ArrayList<String>>();
+		dictionarySet = new HashSet<String>();
 		size = 0;
 	}
 
@@ -46,6 +49,14 @@ public class Dictionary {
 			list.add(a);
 			dictionary.put(a.length(), list);
 		}
+		dictionarySet.add(a);
 
 	}
+	
+	public static boolean exists ( String a )
+	{
+		if ( dictionarySet.contains(a)) return true;
+		else return false;
+	}
+	
 }

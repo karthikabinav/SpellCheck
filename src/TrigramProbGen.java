@@ -13,6 +13,7 @@ public class TrigramProbGen
 	/* Hashtables to keep track of the counts of biwords and triwords */
 	public static Hashtable<Biword, Integer> biwordCount;
 	public static Hashtable<Triword, Integer> triwordCount;
+	public static Dictionary dict;
 
 	/*
 	 * Hashtable to keep track of the parts of speech for a given word and words
@@ -30,13 +31,18 @@ public class TrigramProbGen
 		partsOfSpeech = new Hashtable<String, ArrayList<String>>();
 		wordsOfPos = new Hashtable<String, ArrayList<String>>();
 
+		// Creating and filling a dictionary
+		dict = new Dictionary();
+		dict.fillDictionary();
+
 		// Reading the corpus
 		File filenames = new File("brown/filenames");
 		Scanner files_in = new Scanner(filenames);
 
-		while (files_in.hasNext())
+		// while (files_in.hasNext())
 		{
-			String next_file =  files_in.next();
+			String next_file = "ce08";
+			// String next_file = files_in.next();
 			File f = new File("brown/" + next_file);
 			Scanner posin = new Scanner(f);
 
@@ -86,6 +92,7 @@ public class TrigramProbGen
 				}
 
 			}
+			System.out.println("Done with file " + next_file);
 		}
 		System.out.println(wordsOfPos);
 	}
@@ -100,13 +107,30 @@ public class TrigramProbGen
 		// trigram and bigram counts
 		// for all these parts of speech combinations.
 		initialize();
-
+		
 		// What we essentially need to do is to take a particular phrase/
 		// sentence, and first detect
 		// if there is some misspelling. If there is no misspelling, we
 		// assume that the sentence is
 		// correct. We check the misspelling by searching against the default
 		// dictionary present in ubuntu
+		Scanner jin = new Scanner ( System.in );
+		String input = jin.nextLine();
+		String[] inputWords = input.split("[ .]");
+		
+		int misspelt = -1;
+		for ( int i = 0; i < inputWords.length; i++ )
+		{
+			inputWords[i] = inputWords[i].toLowerCase();
+			if ( !Dictionary.exists(inputWords[i])) misspelt = i;
+		}
+		if ( misspelt == -1 ) 
+		{
+			System.out.println ( "All words are correctly spelt");
+			System.exit(0);
+		}
+		
+		
 		// If there is a misspelling, we need to correct it. So for that, we
 		// first need to get a set
 		// of candidate replacements. In other words, the confusion set that
@@ -129,34 +153,37 @@ public class TrigramProbGen
 
 	}
 
-//	public static double probOfTwGivenBw(Triword tw, Biword bw)
-//	{
-//		if (!tw.contains(bw))
-//		{
-//			System.out.println("Biword not in Triword. Fix the bulb");
-//			System.exit(1);
-//		}
-//		if (triwordCount.containsKey(tw))
-//			return triwordCount.get(tw) + 1 / (double) biwordCount.get(bw);
-//
-//	}
-//
-//	public static Probab probOfWGivenT(String w, String t)
-//	{
-//		if (!wordsOfPos.contains(t))
-//		{
-//			System.out.println("Tag " + t + " is not in hashtable at all!");
-//			System.exit(1);
-//		}
-//		ArrayList<String> list = wordsOfPos.get(t);
-//		int word_count = 0;
-//		for (String word : list)
-//			if (word.equals(w))
-//				word_count++;
-//
-//		// Here we also account for smoothing
-//		return (word_count + 1) / (double) (2 * list.size());
-//	}
+	public static Probab probOfTwGivenBw(Triword tw, Biword bw)
+	{
+		if (!tw.contains(bw))
+		{
+			System.out.println("Biword not in Triword. Fix the bulb");
+			System.exit(1);
+		}
+		if (triwordCount.containsKey(tw))
+			return new Probab ( bigInt(triwordCount.get(tw) + 1) , bigInt( biwordCount.get(bw) + Dictionary.size));
+		else
+			return new Probab ( bigInt(1) , bigInt( biwordCount.get(bw) + Dictionary.size));
+
+	}
+
+	public static Probab probOfWGivenT(String w, String t)
+	{
+		// If the tag is not part of our learning, assign equal weights to all
+		if (!wordsOfPos.contains(t))
+		{
+			return new Probab(bigInt(1), bigInt(Dictionary.size));
+		}
+		ArrayList<String> list = wordsOfPos.get(t);
+		int word_count = 0;
+		for (String word : list)
+			if (word.equals(w))
+				word_count++;
+
+		// Here we also account for smoothing
+		return new Probab(new BigInteger(Integer.toString(word_count + 1)),
+				new BigInteger(Integer.toString(list.size() + Dictionary.size)));
+	}
 
 	private static void test()
 	{
@@ -242,6 +269,13 @@ public class TrigramProbGen
 			}
 		}
 
+	}
+
+	/* BigInteger helper */
+
+	public static BigInteger bigInt(int i)
+	{
+		return new BigInteger(Integer.toString(i));
 	}
 }
 
