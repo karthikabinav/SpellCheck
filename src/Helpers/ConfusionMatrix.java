@@ -1,4 +1,5 @@
 package Helpers;
+
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.math.BigInteger;
@@ -20,6 +21,10 @@ public class ConfusionMatrix {
 	public long subCount;
 	public long delCount;
 	public long revCount;
+
+	public ConfusionMatrix() throws FileNotFoundException {
+		init();
+	}
 
 	public void init() throws FileNotFoundException {
 		Dictionary my_dictionary = new Dictionary();

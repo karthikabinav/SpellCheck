@@ -1,4 +1,5 @@
 package Helpers;
+
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,7 +19,6 @@ public class Main {
 		// Initializing instances of the necessary classes
 		LevenshteinDistance LD = new LevenshteinDistance();
 		ConfusionMatrix matrix = new ConfusionMatrix();
-		matrix.init();
 
 		/*
 		 * 1. Get input 2. Search the dictionary for length-3 to length+3 3. Run
