@@ -1,5 +1,7 @@
 package Bayes;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,8 +33,8 @@ public class CollocationLearning {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void main(String args[]) {
-		Scanner s = new Scanner(System.in);
+	public static void main(String args[]) throws FileNotFoundException {
+		Scanner s = new Scanner(new File(Helpers.Main.corpusFile));
 
 		ArrayList<String> prevk = new ArrayList<String>();
 		while (s.hasNext()) {
@@ -55,6 +57,9 @@ public class CollocationLearning {
 
 			if (prevk.size() == k) {
 				int i;
+				for (i = 1; i < prevk.size(); i++) {
+					collocation.get(prevk.get(0)).words.add(prevk.get(i));
+				}
 				for (i = 0; i < prevk.size() - 1; i++) {
 					prevk.set(i, prevk.get(i + 1));
 				}
@@ -67,7 +72,7 @@ public class CollocationLearning {
 		Set<java.util.Map.Entry<String, StringCounter>> hash = collocation
 				.entrySet();
 		for (java.util.Map.Entry<String, StringCounter> e : hash) {
-			if (e.getValue().count <= 1)
+			if (e.getValue().count <= 3)
 				continue;
 			System.out.println(e.getKey());
 			for (String p : e.getValue().words) {

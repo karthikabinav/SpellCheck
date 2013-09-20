@@ -1,5 +1,7 @@
 package Bayes;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -54,8 +56,8 @@ public class LearningContext {
 	// training
 
 	@SuppressWarnings("unchecked")
-	public static void main(String args[]) {
-		Scanner s = new Scanner(System.in);
+	public static void main(String args[]) throws FileNotFoundException {
+		Scanner s = new Scanner(new File(Helpers.Main.corpusFile));
 
 		ArrayList<POST> prevk = new ArrayList<POST>();
 		while (s.hasNext()) {
