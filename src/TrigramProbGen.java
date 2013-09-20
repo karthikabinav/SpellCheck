@@ -14,6 +14,7 @@ public class TrigramProbGen
 	public static Hashtable<Biword, Integer> biwordCount;
 	public static Hashtable<Triword, Integer> triwordCount;
 	public static Dictionary dict;
+	public static ConfusionMatrix cm;
 
 	/*
 	 * Hashtable to keep track of the parts of speech for a given word and words
@@ -32,8 +33,9 @@ public class TrigramProbGen
 		wordsOfPos = new Hashtable<String, ArrayList<String>>();
 
 		// Creating and filling a dictionary
+		cm = new ConfusionMatrix();
+		cm.init();
 		dict = new Dictionary();
-		dict.fillDictionary();
 
 		// Reading the corpus
 		File filenames = new File("brown/filenames");
@@ -129,6 +131,9 @@ public class TrigramProbGen
 			System.out.println ( "All words are correctly spelt");
 			System.exit(0);
 		}
+		
+		ArrayList<String> confusionSet = cm.getSuggestions(inputWords[misspelt]);
+		System.out.println (confusionSet);
 		
 		
 		// If there is a misspelling, we need to correct it. So for that, we
