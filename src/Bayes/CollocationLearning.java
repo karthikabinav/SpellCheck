@@ -2,13 +2,14 @@ package Bayes;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
-class StringCounter {
+class StringCounter implements Serializable {
 	ArrayList<String> words;
 	int count;
 }
@@ -33,7 +34,7 @@ public class CollocationLearning {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void main(String args[]) throws FileNotFoundException {
+	public static void Learn() throws FileNotFoundException {
 		Scanner s = new Scanner(new File(Helpers.Main.corpusFile));
 
 		ArrayList<String> prevk = new ArrayList<String>();
@@ -69,17 +70,13 @@ public class CollocationLearning {
 
 		}
 
-		Set<java.util.Map.Entry<String, StringCounter>> hash = collocation
-				.entrySet();
-		for (java.util.Map.Entry<String, StringCounter> e : hash) {
-			if (e.getValue().count <= 3)
-				continue;
-			System.out.println(e.getKey());
-			for (String p : e.getValue().words) {
-				System.out.print(p + " ");
-			}
-			System.out.println();
-		}
+		/*
+		 * Set<java.util.Map.Entry<String, StringCounter>> hash = collocation
+		 * .entrySet(); for (java.util.Map.Entry<String, StringCounter> e :
+		 * hash) { if (e.getValue().count <= 3) continue;
+		 * System.out.println(e.getKey()); for (String p : e.getValue().words) {
+		 * System.out.print(p + " "); } System.out.println(); }
+		 */
 		s.close();
 
 	}

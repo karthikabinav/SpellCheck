@@ -13,7 +13,7 @@ class Pair {
 }
 
 public class Main {
-	public static String corpusFile = "corpus";
+	public static String corpusFile = "merged";
 
 	public static void main(String[] args) throws FileNotFoundException {
 		// Initializing instances of the necessary classes

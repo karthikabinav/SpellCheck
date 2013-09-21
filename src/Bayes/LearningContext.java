@@ -2,6 +2,7 @@ package Bayes;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -13,7 +14,7 @@ import java.util.Set;
  */
 
 // Class to tag the part of speech
-class POST {
+class POST implements Serializable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -56,15 +57,20 @@ public class LearningContext {
 	// training
 
 	@SuppressWarnings("unchecked")
-	public static void main(String args[]) throws FileNotFoundException {
+	public static void Learn() throws FileNotFoundException {
 		Scanner s = new Scanner(new File(Helpers.Main.corpusFile));
 
 		ArrayList<POST> prevk = new ArrayList<POST>();
 		while (s.hasNext()) {
 			String curWord = s.next();
 			POST obj = new POST();
-			obj.word = curWord.split("/")[0].toLowerCase();
-			obj.POSTag = curWord.split("/")[1];
+			try {
+				obj.word = curWord.split("/")[0].toLowerCase();
+				obj.POSTag = curWord.split("/")[1];
+			} catch (Exception e) {
+				obj.POSTag = "UND";
+			}
+
 			if (context.containsKey(obj)) {
 				ArrayList<POST> temp = context.get(obj);
 				for (POST p : prevk) {
@@ -84,15 +90,14 @@ public class LearningContext {
 				prevk.add(obj);
 
 		}
-		Set<java.util.Map.Entry<POST, ArrayList<POST>>> hash = context
-				.entrySet();
-		for (java.util.Map.Entry<POST, ArrayList<POST>> e : hash) {
-			System.out.println(e.getKey().word + " " + e.getKey().POSTag);
-			for (POST p : e.getValue()) {
-				System.out.print(p.word + " " + p.POSTag + " ");
-			}
-			System.out.println();
-		}
+		/*
+		 * Set<java.util.Map.Entry<POST, ArrayList<POST>>> hash = context
+		 * .entrySet(); for (java.util.Map.Entry<POST, ArrayList<POST>> e :
+		 * hash) { System.out.println(e.getKey().word + " " +
+		 * e.getKey().POSTag); for (POST p : e.getValue()) {
+		 * System.out.print(p.word + " " + p.POSTag + " "); }
+		 * System.out.println(); }
+		 */
 		s.close();
 	}
 }

@@ -7,14 +7,23 @@ import java.util.Scanner;
 
 public class PartsOfSpeech {
 
-	public HashMap<String, String> wordPOSMap;
+	public static HashMap<String, String> wordPOSMap = new HashMap<String, String>();
 
-	public void populatePOSMap() throws FileNotFoundException {
+	public static void populatePOSMap() throws FileNotFoundException {
 		Scanner s = new Scanner(new File(Helpers.Main.corpusFile));
 
 		while (s.hasNext()) {
 			String r = s.next();
-			wordPOSMap.put(r.split("/")[0], r.split("/")[1]);
+			String key = "";
+			String value = "";
+			try {
+				key = r.split("/")[0].toLowerCase();
+				value = r.split("/")[1];
+			} catch (Exception e) {
+				value = "UND";
+			}
+
+			wordPOSMap.put(key, value);
 
 		}
 		s.close();

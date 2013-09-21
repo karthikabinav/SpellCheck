@@ -1,5 +1,5 @@
+
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,6 +11,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
+
+import Helpers.ConfusionMatrix;
+import Helpers.Dictionary;
+
 
 public class TrigramProbGen
 {
@@ -41,7 +45,6 @@ public class TrigramProbGen
 		
 		// Creating and filling a dictionary
 		cm = new ConfusionMatrix();
-		cm.init();
 		dict = new Dictionary();
 
 		// Reading the corpus

@@ -1,4 +1,5 @@
 package Helpers;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -7,8 +8,10 @@ import java.util.Scanner;
 
 public class Reader {
 
+	private static String inputFile = "merged";
+
 	public static void ReadToFile() throws IOException {
-		Scanner read = new Scanner(System.in);
+		Scanner read = new Scanner(new File(inputFile));
 		File f = new File(Main.corpusFile);
 		BufferedWriter fout = new BufferedWriter(new FileWriter(f));
 
@@ -21,7 +24,4 @@ public class Reader {
 		fout.close();
 	}
 
-	public static void main(String args[]) throws IOException {
-		ReadToFile();
-	}
 }
