@@ -13,11 +13,14 @@ import java.util.Hashtable;
 import Helpers.Dictionary;
 import Helpers.LevenshteinDistance;
 
-public class Driver {
+public class Driver
+{
 
 	// Credits : http://www.wikihow.com/Serialize-an-Object-in-Java
-	public static void serialize(Object object, String s) {
-		try {
+	public static void serialize(Object object, String s)
+	{
+		try
+		{
 			// Serialize data object to a file
 			ObjectOutputStream out = new ObjectOutputStream(
 					new FileOutputStream(s + ".ser"));
@@ -32,25 +35,29 @@ public class Driver {
 
 			// Get the bytes of the serialized object
 			byte[] buf = bos.toByteArray();
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 		}
 	}
 
 	// http://www.wikihow.com/Serialize-an-Object-in-Java
-	public static Object readSerialized(String s) throws ClassNotFoundException {
-		try {
+	public static Object readSerialized(String s) throws ClassNotFoundException
+	{
+		try
+		{
 			FileInputStream door = new FileInputStream(s + ".ser");
 			ObjectInputStream reader = new ObjectInputStream(door);
 			return reader.readObject();
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 		return null;
 
 	}
 
-	public static void main(String args[]) throws IOException,
-			ClassNotFoundException {
+	public Driver() throws IOException, ClassNotFoundException
+	{
 		Dictionary d = new Dictionary();
 		d.fillDictionary();
 
@@ -72,12 +79,14 @@ public class Driver {
 		LearningContext.context = (HashMap<POST, ArrayList<POST>>) readSerialized("Context");
 		CollocationLearning.collocation = (HashMap<String, StringCounter>) readSerialized("Collocation");
 
-		String sentence = "Let there be peece of mind";
-
-		ArrayList<Tuple> corrections = TestData.correct(sentence);
-		for (Tuple cand : corrections) {
-			System.out.println(cand.word + " " + cand.rank);
-		}
+		
+		System.out.println ( "Driver initialization complete");
+		// String sentence = "Let there be peece of mind";
+		//
+		// ArrayList<Tuple> corrections = TestData.correct(sentence);
+		// for (Tuple cand : corrections) {
+		// System.out.println(cand.word + " " + cand.rank);
+		// }
 
 	}
 

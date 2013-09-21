@@ -9,20 +9,17 @@ import Helpers.Dictionary;
 import Helpers.Global;
 import Helpers.LevenshteinDistance;
 
-class Tuple {
-	public String word;
-	public long rank;
-}
-
 // Class that takes the test data and returns the result based on Bayesian
 // probabilities
-public class TestData {
+public class TestData
+{
 	// Input a sentence with possibly a spelling mistake
 	// Output the correct sentence with the spelling mistake corrected
 	private static ConfusionMatrix matrix;
 	private static LevenshteinDistance LD;
 
-	public static void init() throws FileNotFoundException {
+	public static void init() throws FileNotFoundException
+	{
 		matrix = new ConfusionMatrix();
 		LD = new LevenshteinDistance();
 	}
@@ -31,7 +28,8 @@ public class TestData {
 	// TODO: the function definition
 	private static long getIntersection(String word, String POSTag,
 			ArrayList<String> contextWord, ArrayList<String> contextPOS,
-			ArrayList<String> coOccurenceWord) {
+			ArrayList<String> coOccurenceWord)
+	{
 
 		POST p = new POST();
 		p.word = word;
@@ -39,14 +37,18 @@ public class TestData {
 
 		long rank = 0;
 		ArrayList<POST> thisWordContext = LearningContext.context.get(p);
-		if (thisWordContext != null) {
-			for (POST loop : thisWordContext) {
+		if (thisWordContext != null)
+		{
+			for (POST loop : thisWordContext)
+			{
 
-				for (String s : contextWord) {
+				for (String s : contextWord)
+				{
 					if (s.equals(loop.word))
 						rank++;
 				}
-				for (String s : contextPOS) {
+				for (String s : contextPOS)
+				{
 					if (s.equals(loop.POSTag))
 						rank++;
 				}
@@ -57,10 +59,13 @@ public class TestData {
 				.get(word);
 
 		long colCount = 0;
-		if (thisWordCollocation != null) {
-			for (String loop : thisWordCollocation.words) {
+		if (thisWordCollocation != null)
+		{
+			for (String loop : thisWordCollocation.words)
+			{
 
-				for (String s : coOccurenceWord) {
+				for (String s : coOccurenceWord)
+				{
 					if (s.equals(loop))
 						colCount++;
 				}
@@ -71,15 +76,19 @@ public class TestData {
 		return rank;
 	}
 
-	private static ArrayList<String> getCandidates(String input) {
+	private static ArrayList<String> getCandidates(String input)
+	{
 		ArrayList<String> suggestions = new ArrayList<String>();
 
-		for (int i = Math.max(input.length() - 3, 1); i < input.length() + 3; i++) {
+		for (int i = Math.max(input.length() - 3, 1); i < input.length() + 3; i++)
+		{
 			ArrayList<String> possibility_list = Dictionary.dictionary.get(i);
-			for (String s : possibility_list) {
+			for (String s : possibility_list)
+			{
 				int edit_dist = LD.getLD(s, input, matrix);
 
-				if (edit_dist < Global.MAX_DIST) {
+				if (edit_dist < Global.MAX_DIST)
+				{
 					suggestions.add(s);
 
 				}
@@ -89,7 +98,9 @@ public class TestData {
 	}
 
 	public static ArrayList<Tuple> correct(String input)
-			throws FileNotFoundException {
+			throws FileNotFoundException
+	{
+//		System.out.println("TestData -- " + input);
 
 		StringTokenizer tokenizer = new StringTokenizer(input, " !?.;,");
 
@@ -104,35 +115,41 @@ public class TestData {
 										// spelling error
 		// TODO: For more than one a repeated guess and correct learn method
 		// will be followed
-		while (tokenizer.hasMoreElements()) {
+		while (tokenizer.hasMoreElements())
+		{
 			String token = tokenizer.nextToken();
 
 			ArrayList<String> possibility_list = Dictionary.dictionary
 					.get(token.length());
 
 			boolean found = false;
-			for (String str : possibility_list) {
+			for (String str : possibility_list)
+			{
 				str = str.replaceAll("[^a-zA-Z]", "");
 				token = token.replaceAll("[^a-zA-Z]", "");
 				token = token.toLowerCase();
 
 				int edit_dist = LD.getLD(str, token, matrix);
-				if (edit_dist == 0) {
+				if (edit_dist == 0)
+				{
 					found = true;
 					break;
 				}
 			}
-			if (!found) {
+			if (!found)
+			{
 				misSpelt = token;
 				beforeOccurence = false;
 
-			} else {
+			} else
+			{
 				if (beforeOccurence)
 					contextWord.add(token);
 				String POS;
 				if (PartsOfSpeech.wordPOSMap.containsKey(token))
 					POS = PartsOfSpeech.wordPOSMap.get(token);
-				else {
+				else
+				{
 					PartsOfSpeech.wordPOSMap.put(token, "UND"); // code for
 					POS = "UND";
 				}
@@ -150,10 +167,12 @@ public class TestData {
 		// find the respective probabilities
 
 		// Getting candidates baseed on Edit distance
+//		System.out.println("Misspelt " + misSpelt);
 		ArrayList<String> candidates = getCandidates(misSpelt);
 
 		ArrayList<Tuple> correction = new ArrayList<Tuple>();
-		for (String cand : candidates) {
+		for (String cand : candidates)
+		{
 			misSpeltPPOS = PartsOfSpeech.wordPOSMap.get(cand);
 			long rank = 0;
 			if (misSpeltPPOS != null)
@@ -163,6 +182,7 @@ public class TestData {
 			t.word = cand;
 			t.rank = rank;
 
+			// if (rank != 0)
 			correction.add(t);
 		}
 

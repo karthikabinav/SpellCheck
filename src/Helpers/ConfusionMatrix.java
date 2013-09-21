@@ -28,7 +28,6 @@ public class ConfusionMatrix {
 
 	public void init() throws FileNotFoundException {
 		Dictionary my_dictionary = new Dictionary();
-		my_dictionary.fillDictionary();
 
 		this.readAddMatrix("addXY");
 		this.readSubMatrix("subXY");

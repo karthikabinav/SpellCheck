@@ -117,7 +117,7 @@ public class TrigramProbGen
 		//System.out.println(biwordCount);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException, ClassNotFoundException
+	public TrigramProbGen() throws FileNotFoundException, ClassNotFoundException
 	{
 		// In the initialize phase, we learn the trigram probabilities for
 		// parts of speech
@@ -128,61 +128,7 @@ public class TrigramProbGen
 		// for all these parts of speech combinations.
 		initialize();
 		
-		System.out.println ( "Initialization complete. Enter the incorrect sentence");
-
-		// What we essentially need to do is to take a particular phrase/
-		// sentence, and first detect
-		// if there is some misspelling. If there is no misspelling, we
-		// assume that the sentence is
-		// correct. We check the misspelling by searching against the default
-		// dictionary present in ubuntu
-		Scanner jin = new Scanner(System.in);
-		String input = jin.nextLine();
-		String[] inputWords = input.split("[ .]");
-
-		int misspelt = -1;
-		for (int i = 0; i < inputWords.length; i++)
-		{
-			inputWords[i] = inputWords[i].toLowerCase();
-			if (!Dictionary.exists(inputWords[i]))
-				misspelt = i;
-		}
-		if (misspelt == -1)
-		{
-			System.out.println("All words are correctly spelt");
-			System.exit(0);
-		}
-		System.out.println(partsOfSpeech.get("for"));
-		// If there is a misspelling, we need to correct it. So for that, we
-		// first need to get a set
-		// of candidate replacements. In other words, the confusion set that
-		// we define is the list of
-		// words that are close to the misspelt word in terms of the results
-		// obtained from the first
-		// phase of the assignment.
-		// Once we have a confusion set, we can apply our method.
-		ArrayList<String> confusionSet = cm
-				.getSuggestions(inputWords[misspelt]);
-		System.out.println(confusionSet);
-
-		// Suppose the original sentence was S = w1, w2, w3 ..... wn, and
-		// suppose the misspelt word was
-		// wi. Then we look at the confusion set of wi. We replace every word
-		// wi' from the confusion set
-		// and calculate the probability of the sentence P(S'). The word that
-		// is finally replaced/suggested
-		// is the word with the highest such probability.
-		// Now we need a method to calculate P(S). This is done using the
-		// trigrams in the following way.
-		// We have P(S) = Sigma P(S,T), where P(S,T) is the probability that
-		// blah balh and so on
-
-		for (String s : confusionSet)
-		{
-			inputWords[misspelt] = s;
-			System.out.print(s + " : ");
-			probOfSentence(inputWords).print();
-		}
+		System.out.println ( "Trigram initialization complete.");
 
 	}
 
@@ -540,6 +486,6 @@ class Probab
 
 	public void print()
 	{
-		System.out.println(this.numerator + "/" + this.denominator);
+		System.out.println(this.numerator);
 	}
 }
