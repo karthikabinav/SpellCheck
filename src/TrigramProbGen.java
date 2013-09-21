@@ -41,10 +41,10 @@ public class TrigramProbGen
 		File filenames = new File("brown/filenames");
 		Scanner files_in = new Scanner(filenames);
 
-		// while (files_in.hasNext())
+		 //while (files_in.hasNext())
 		{
 			String next_file = "ce08";
-			// String next_file = files_in.next();
+			//String next_file = files_in.next();
 			File f = new File("brown/" + next_file);
 			Scanner posin = new Scanner(f);
 
@@ -109,33 +109,30 @@ public class TrigramProbGen
 		// trigram and bigram counts
 		// for all these parts of speech combinations.
 		initialize();
-		
+
 		// What we essentially need to do is to take a particular phrase/
 		// sentence, and first detect
 		// if there is some misspelling. If there is no misspelling, we
 		// assume that the sentence is
 		// correct. We check the misspelling by searching against the default
 		// dictionary present in ubuntu
-		Scanner jin = new Scanner ( System.in );
+		Scanner jin = new Scanner(System.in);
 		String input = jin.nextLine();
 		String[] inputWords = input.split("[ .]");
-		
+
 		int misspelt = -1;
-		for ( int i = 0; i < inputWords.length; i++ )
+		for (int i = 0; i < inputWords.length; i++)
 		{
 			inputWords[i] = inputWords[i].toLowerCase();
-			if ( !Dictionary.exists(inputWords[i])) misspelt = i;
+			if (!Dictionary.exists(inputWords[i]))
+				misspelt = i;
 		}
-		if ( misspelt == -1 ) 
+		if (misspelt == -1)
 		{
-			System.out.println ( "All words are correctly spelt");
+			System.out.println("All words are correctly spelt");
 			System.exit(0);
 		}
-		
-		ArrayList<String> confusionSet = cm.getSuggestions(inputWords[misspelt]);
-		System.out.println (confusionSet);
-		
-		
+		System.out.println ( partsOfSpeech.get("for") );
 		// If there is a misspelling, we need to correct it. So for that, we
 		// first need to get a set
 		// of candidate replacements. In other words, the confusion set that
@@ -144,6 +141,10 @@ public class TrigramProbGen
 		// obtained from the first
 		// phase of the assignment.
 		// Once we have a confusion set, we can apply our method.
+		ArrayList<String> confusionSet = cm
+				.getSuggestions(inputWords[misspelt]);
+		System.out.println(confusionSet);
+
 		// Suppose the original sentence was S = w1, w2, w3 ..... wn, and
 		// suppose the misspelt word was
 		// wi. Then we look at the confusion set of wi. We replace every word
@@ -156,9 +157,38 @@ public class TrigramProbGen
 		// We have P(S) = Sigma P(S,T), where P(S,T) is the probability that
 		// blah balh and so on
 		
-		
+		for ( String s : confusionSet )
+		{
+			inputWords[misspelt] = s;
+			System.out.print ( s + " : ");
+			probOfSentence(inputWords).print();
+		}
 
 	}
+
+	public static String noun = "nn";
+	public static Probab probOfSentence(String[] sentence)
+	{
+		Probab p = new Probab(bigInt(1), bigInt(1));
+		
+		for ( int i = 0; i < sentence.length; i++ )
+		{
+			if ( partsOfSpeech.containsKey(sentence[i]))
+				p.multiply(probOfWGivenT(sentence[i], partsOfSpeech.get(sentence[i]).get(0)));
+			else
+				p.multiply(probOfWGivenT(sentence[i], noun ));
+		}
+		
+		
+		for ( int i = 2; i < sentence.length; i++ )
+		{
+			p.multiply(probOfTwGivenBw(new Triword(sentence[i-2], sentence[i-1], sentence[i]), new Biword(sentence[i-2], sentence[i-1])));
+		}
+		
+		return p;
+	}
+	
+	
 
 	public static Probab probOfTwGivenBw(Triword tw, Biword bw)
 	{
@@ -168,10 +198,16 @@ public class TrigramProbGen
 			System.exit(1);
 		}
 		if (triwordCount.containsKey(tw))
-			return new Probab ( bigInt(triwordCount.get(tw) + 1) , bigInt( biwordCount.get(bw) + Dictionary.size));
+			return new Probab(bigInt(triwordCount.get(tw) + 1),
+					bigInt(biwordCount.get(bw) + Dictionary.size));
 		else
-			return new Probab ( bigInt(1) , bigInt( biwordCount.get(bw) + Dictionary.size));
-
+		{
+			if ( biwordCount.containsKey(bw))
+				return new Probab(bigInt(1), bigInt(biwordCount.get(bw)
+						+ Dictionary.size));
+			else
+				return new Probab ( bigInt(1), bigInt(Dictionary.size));
+		}
 	}
 
 	public static Probab probOfWGivenT(String w, String t)
@@ -194,7 +230,7 @@ public class TrigramProbGen
 
 	private static void test()
 	{
-		Biword bw = new Biword("a", "b");
+		/*Biword bw = new Biword("a", "b");
 		Biword bw2 = new Biword("a", "b");
 
 		Triword tw = new Triword("a", "b", "c");
@@ -207,7 +243,13 @@ public class TrigramProbGen
 		updateTriwordCount(tw);
 
 		System.out.println(biwordCount);
-		System.out.println(triwordCount);
+		System.out.println(triwordCount);*/
+		
+		Probab p = new Probab(bigInt(24), bigInt(30));
+		Probab p2 = new Probab ( bigInt(2), bigInt(3));
+		
+		p.add(p2);
+		p.print();
 	}
 
 	private static void updateBiwordCount(Biword bw)
@@ -412,13 +454,28 @@ class Probab
 
 	public void multiply(Probab b)
 	{
-		this.numerator.multiply(b.numerator);
-		this.denominator.multiply(b.denominator);
+		this.numerator = this.numerator.multiply(b.numerator);
+		this.denominator = this.denominator.multiply(b.denominator);
+	}
+
+	public void add(Probab b)
+	{
+		BigInteger num = numerator;
+		BigInteger den = denominator;
+		
+		this.numerator = num.multiply(b.denominator).add(den.multiply(b.numerator));
+		this.denominator = (den.multiply(b.denominator));
+		//XXX
 	}
 
 	public void divide(Probab b)
 	{
-		this.numerator.multiply(b.denominator);
-		this.denominator.multiply(b.numerator);
+		this.numerator = this.numerator.multiply(b.denominator);
+		this.denominator = this.denominator.multiply(b.numerator);
+	}
+
+	public void print()
+	{
+		System.out.println(this.numerator + "/" + this.denominator);
 	}
 }
