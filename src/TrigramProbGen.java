@@ -1,12 +1,16 @@
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.math.BigDecimal;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
-
-import com.sun.corba.se.impl.resolver.SplitLocalResolverImpl;
 
 public class TrigramProbGen
 {
@@ -24,7 +28,7 @@ public class TrigramProbGen
 	public static Hashtable<String, ArrayList<String>> wordsOfPos;
 
 	/* In this function, we initialize the above four hashtables */
-	public static void initialize() throws FileNotFoundException
+	public static void initialize() throws FileNotFoundException, ClassNotFoundException
 	{
 		// Allocating Memory
 		biwordCount = new Hashtable<Biword, Integer>();
@@ -32,36 +36,39 @@ public class TrigramProbGen
 		partsOfSpeech = new Hashtable<String, ArrayList<String>>();
 		wordsOfPos = new Hashtable<String, ArrayList<String>>();
 
+		partsOfSpeech = (Hashtable<String, ArrayList<String>>) readSerialized("partsOfSpeech");
+		wordsOfPos = (Hashtable<String, ArrayList<String>>) readSerialized("wordsOfPos");
+		
 		// Creating and filling a dictionary
 		cm = new ConfusionMatrix();
 		cm.init();
 		dict = new Dictionary();
 
 		// Reading the corpus
-		File filenames = new File("brown/filenames");
+		/*File filenames = new File("brown/filenames");
 		Scanner files_in = new Scanner(filenames);
 
-		 //while (files_in.hasNext())
+		while (files_in.hasNext())
 		{
-			String next_file = "ce08";
-			//String next_file = files_in.next();
+			//String next_file = "ce08";
+			 String next_file = files_in.next();
 			File f = new File("brown/" + next_file);
 			Scanner posin = new Scanner(f);
 
-			while (posin.hasNext())
-			{
-				// Here is where we must build the Parts of speech
-				String s = posin.next();
-				String[] s_split = s.split("[/+]");
-				// s_split[1+] contains the pos tag for string
-				for (int i = 0; i < s_split.length; i++)
-					s_split[i] = s_split[i].toLowerCase();
-
-				addToPartsOfSpeech(s_split);
-				addToWordsOfPos(s_split);
-			}
-
-			posin = new Scanner(f);
+//			while (posin.hasNext())
+//			{
+//				// Here is where we must build the Parts of speech
+//				String s = posin.next();
+//				String[] s_split = s.split("[/+]");
+//				// s_split[1+] contains the pos tag for string
+//				for (int i = 0; i < s_split.length; i++)
+//					s_split[i] = s_split[i].toLowerCase();
+//
+//				addToPartsOfSpeech(s_split);
+//				addToWordsOfPos(s_split);
+//			}
+//
+//			posin = new Scanner(f);
 
 			while (posin.hasNext())
 			{
@@ -96,10 +103,18 @@ public class TrigramProbGen
 			}
 			System.out.println("Done with file " + next_file);
 		}
-		System.out.println(wordsOfPos);
+		
+
+		serialize(biwordCount, "BiwordCount");
+		serialize(triwordCount, "TriwordCount");*/
+		
+		biwordCount = (Hashtable<Biword, Integer>) readSerialized("BiwordCount");
+		triwordCount = (Hashtable<Triword, Integer>) readSerialized("TriwordCount");
+		
+		//System.out.println(biwordCount);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException
+	public static void main(String[] args) throws FileNotFoundException, ClassNotFoundException
 	{
 		// In the initialize phase, we learn the trigram probabilities for
 		// parts of speech
@@ -109,6 +124,8 @@ public class TrigramProbGen
 		// trigram and bigram counts
 		// for all these parts of speech combinations.
 		initialize();
+		
+		System.out.println ( "Initialization complete. Enter the incorrect sentence");
 
 		// What we essentially need to do is to take a particular phrase/
 		// sentence, and first detect
@@ -132,7 +149,7 @@ public class TrigramProbGen
 			System.out.println("All words are correctly spelt");
 			System.exit(0);
 		}
-		System.out.println ( partsOfSpeech.get("for") );
+		System.out.println(partsOfSpeech.get("for"));
 		// If there is a misspelling, we need to correct it. So for that, we
 		// first need to get a set
 		// of candidate replacements. In other words, the confusion set that
@@ -156,39 +173,45 @@ public class TrigramProbGen
 		// trigrams in the following way.
 		// We have P(S) = Sigma P(S,T), where P(S,T) is the probability that
 		// blah balh and so on
-		
-		for ( String s : confusionSet )
+
+		for (String s : confusionSet)
 		{
 			inputWords[misspelt] = s;
-			System.out.print ( s + " : ");
+			System.out.print(s + " : ");
 			probOfSentence(inputWords).print();
 		}
 
 	}
 
 	public static String noun = "nn";
+
 	public static Probab probOfSentence(String[] sentence)
 	{
 		Probab p = new Probab(bigInt(1), bigInt(1));
-		
-		for ( int i = 0; i < sentence.length; i++ )
+
+		for (int i = 0; i < sentence.length; i++)
 		{
-			if ( partsOfSpeech.containsKey(sentence[i]))
-				p.multiply(probOfWGivenT(sentence[i], partsOfSpeech.get(sentence[i]).get(0)));
+			if (partsOfSpeech.containsKey(sentence[i]))
+				p.multiply(probOfWGivenT(sentence[i],
+						partsOfSpeech.get(sentence[i]).get(0)));
 			else
-				p.multiply(probOfWGivenT(sentence[i], noun ));
+				p.multiply(probOfWGivenT(sentence[i], noun));
 		}
-		
-		
-		for ( int i = 2; i < sentence.length; i++ )
+
+		for (int i = 2; i < sentence.length; i++)
 		{
-			p.multiply(probOfTwGivenBw(new Triword(sentence[i-2], sentence[i-1], sentence[i]), new Biword(sentence[i-2], sentence[i-1])));
+			String a = partsOfSpeech.containsKey(sentence[i - 2]) ? partsOfSpeech
+					.get(sentence[i - 2]).get(0) : noun;
+			String b = partsOfSpeech.containsKey(sentence[i - 1]) ? partsOfSpeech
+					.get(sentence[i - 1]).get(0) : noun;
+			String c = partsOfSpeech.containsKey(sentence[i]) ? partsOfSpeech
+					.get(sentence[i]).get(0) : noun;
+
+			p.multiply(probOfTwGivenBw(new Triword(a, b, c), new Biword(a, b)));
 		}
-		
+
 		return p;
 	}
-	
-	
 
 	public static Probab probOfTwGivenBw(Triword tw, Biword bw)
 	{
@@ -202,11 +225,11 @@ public class TrigramProbGen
 					bigInt(biwordCount.get(bw) + Dictionary.size));
 		else
 		{
-			if ( biwordCount.containsKey(bw))
+			if (biwordCount.containsKey(bw))
 				return new Probab(bigInt(1), bigInt(biwordCount.get(bw)
 						+ Dictionary.size));
 			else
-				return new Probab ( bigInt(1), bigInt(Dictionary.size));
+				return new Probab(bigInt(1), bigInt(Dictionary.size));
 		}
 	}
 
@@ -230,24 +253,18 @@ public class TrigramProbGen
 
 	private static void test()
 	{
-		/*Biword bw = new Biword("a", "b");
-		Biword bw2 = new Biword("a", "b");
+		/*
+		 * Biword bw = new Biword("a", "b"); Biword bw2 = new Biword("a", "b");
+		 * Triword tw = new Triword("a", "b", "c"); Triword tw2 = new
+		 * Triword("a", "b", "c"); updateBiwordCount(bw2);
+		 * updateBiwordCount(bw); updateTriwordCount(tw2);
+		 * updateTriwordCount(tw); System.out.println(biwordCount);
+		 * System.out.println(triwordCount);
+		 */
 
-		Triword tw = new Triword("a", "b", "c");
-		Triword tw2 = new Triword("a", "b", "c");
-
-		updateBiwordCount(bw2);
-		updateBiwordCount(bw);
-
-		updateTriwordCount(tw2);
-		updateTriwordCount(tw);
-
-		System.out.println(biwordCount);
-		System.out.println(triwordCount);*/
-		
 		Probab p = new Probab(bigInt(24), bigInt(30));
-		Probab p2 = new Probab ( bigInt(2), bigInt(3));
-		
+		Probab p2 = new Probab(bigInt(2), bigInt(3));
+
 		p.add(p2);
 		p.print();
 	}
@@ -326,9 +343,52 @@ public class TrigramProbGen
 	{
 		return new BigInteger(Integer.toString(i));
 	}
+
+	// Credits : http://www.wikihow.com/Serialize-an-Object-in-Java
+	public static void serialize(Object object, String s)
+	{
+		try
+		{
+			// Serialize data object to a file
+			ObjectOutputStream out = new ObjectOutputStream(
+					new FileOutputStream(s + ".ser"));
+			out.writeObject(object);
+			out.close();
+
+			// Serialize data object to a byte array
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			out = new ObjectOutputStream(bos);
+			out.writeObject(object);
+			out.close();
+
+			// Get the bytes of the serialized object
+			byte[] buf = bos.toByteArray();
+		} catch (IOException e)
+		{
+		}
+	}
+
+	// http://www.wikihow.com/Serialize-an-Object-in-Java
+	public static Object readSerialized(String s) throws ClassNotFoundException
+	{
+		try
+		{
+			FileInputStream door = new FileInputStream(s + ".ser");
+			ObjectInputStream reader = new ObjectInputStream(door);
+			Object x = new Object();
+			x =(Object) reader.readObject();
+			return x;
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
 }
 
-class Biword
+class Biword implements Serializable
 {
 	public String a;
 	public String b;
@@ -376,7 +436,7 @@ class Biword
 
 }
 
-class Triword
+class Triword implements Serializable
 {
 	public String a;
 	public String b;
@@ -462,10 +522,11 @@ class Probab
 	{
 		BigInteger num = numerator;
 		BigInteger den = denominator;
-		
-		this.numerator = num.multiply(b.denominator).add(den.multiply(b.numerator));
+
+		this.numerator = num.multiply(b.denominator).add(
+				den.multiply(b.numerator));
 		this.denominator = (den.multiply(b.denominator));
-		//XXX
+		// XXX
 	}
 
 	public void divide(Probab b)
