@@ -6,7 +6,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ConfusionMatrix {
+public class ConfusionMatrix
+{
 	public int AddMatrix[][] = new int[27][27];
 	public int SubMatrix[][] = new int[27][27];
 	public int DelMatrix[][] = new int[27][27];
@@ -22,36 +23,47 @@ public class ConfusionMatrix {
 	public long delCount;
 	public long revCount;
 
-	public ConfusionMatrix() throws FileNotFoundException {
+	public ConfusionMatrix() throws FileNotFoundException
+	{
 		init();
 	}
 
-	public void init() throws FileNotFoundException {
+	public void init() throws FileNotFoundException
+	{
 		Dictionary my_dictionary = new Dictionary();
 
 		this.readAddMatrix("addXY");
 		this.readSubMatrix("subXY");
 		this.readDelMatrix("delXY");
 		this.readRevMatrix("revXY");
+		// this.printAddMatrix();
+		//this.reverseMatrices();
 		this.smoothMatrix();
-		this.convertProb();
+		// this.convertProb();
+		// this.printDelMatrix();
+
 	}
 
-	public ArrayList<String> getSuggestions(String input) {
+	public ArrayList<String> getSuggestions(String input)
+	{
 		// A list for the output
 		ArrayList<String> output_list = new ArrayList<String>();
 		LevenshteinDistance LD = new LevenshteinDistance();
 
 		// Giving an error in the length by 3 units
-		for (int i = Math.max(input.length() - 3, 1); i < input.length() + 3; i++) {
+		for (int i = Math.max(input.length() - 3, 1); i < input.length() + 3; i++)
+		{
 			ArrayList<String> possibility_list = Dictionary.dictionary.get(i);
-			for (String s : possibility_list) {
+			for (String s : possibility_list)
+			{
 				int edit_dist = LD.getLD(s, input, this);
-				if (edit_dist == 0) {
+				if (edit_dist == 0)
+				{
 					System.out.println("Word is already correct");
 					System.exit(0);
 				}
-				if (edit_dist < Global.MAX_DIST) {
+				if (edit_dist < Global.MAX_DIST)
+				{
 					output_list.add(s);
 				}
 			}
@@ -61,9 +73,11 @@ public class ConfusionMatrix {
 
 	}
 
-	public void printAddMatrix() {
+	public void printAddMatrix()
+	{
 		int i, j;
-		for (i = 0; i < 27; i++) {
+		for (i = 0; i < 27; i++)
+		{
 			for (j = 0; j < 26; j++)
 				System.out.print(AddMatrix[i][j] + " ");
 			System.out.println();
@@ -71,18 +85,22 @@ public class ConfusionMatrix {
 
 	}
 
-	public void printSubMatrix() {
+	public void printSubMatrix()
+	{
 		int i, j;
-		for (i = 0; i < 26; i++) {
+		for (i = 0; i < 26; i++)
+		{
 			for (j = 0; j < 26; j++)
 				System.out.print(SubMatrix[i][j] + " ");
 			System.out.println();
 		}
 	}
 
-	public void printDelMatrix() {
+	public void printDelMatrix()
+	{
 		int i, j;
-		for (i = 0; i < 27; i++) {
+		for (i = 0; i < 27; i++)
+		{
 			for (j = 0; j < 26; j++)
 				System.out.print(DelMatrix[i][j] + " ");
 			System.out.println();
@@ -91,21 +109,25 @@ public class ConfusionMatrix {
 
 	}
 
-	public void printRevMatrix() {
+	public void printRevMatrix()
+	{
 		int i, j;
-		for (i = 0; i < 26; i++) {
+		for (i = 0; i < 26; i++)
+		{
 			for (j = 0; j < 26; j++)
 				System.out.print(RevMatrix[i][j] + " ");
 			System.out.println();
 		}
 	}
 
-	public void readAddMatrix(String fileName) throws FileNotFoundException {
+	public void readAddMatrix(String fileName) throws FileNotFoundException
+	{
 		File f = new File(fileName);
 		Scanner fin = new Scanner(f);
 
 		int i, j;
-		for (i = 0; i < 27; i++) {
+		for (i = 0; i < 27; i++)
+		{
 			for (j = 0; j < 26; j++)
 				AddMatrix[i][j] = fin.nextInt();
 
@@ -113,12 +135,14 @@ public class ConfusionMatrix {
 		fin.close();
 	}
 
-	public void readSubMatrix(String fileName) throws FileNotFoundException {
+	public void readSubMatrix(String fileName) throws FileNotFoundException
+	{
 		File f = new File(fileName);
 		Scanner fin = new Scanner(f);
 
 		int i, j;
-		for (i = 0; i < 26; i++) {
+		for (i = 0; i < 26; i++)
+		{
 			for (j = 0; j < 26; j++)
 				SubMatrix[i][j] = fin.nextInt();
 
@@ -126,12 +150,14 @@ public class ConfusionMatrix {
 		fin.close();
 	}
 
-	public void readDelMatrix(String fileName) throws FileNotFoundException {
+	public void readDelMatrix(String fileName) throws FileNotFoundException
+	{
 		File f = new File(fileName);
 		Scanner fin = new Scanner(f);
 
 		int i, j;
-		for (i = 0; i < 27; i++) {
+		for (i = 0; i < 27; i++)
+		{
 			for (j = 0; j < 26; j++)
 				DelMatrix[i][j] = fin.nextInt();
 
@@ -139,12 +165,14 @@ public class ConfusionMatrix {
 		fin.close();
 	}
 
-	public void readRevMatrix(String fileName) throws FileNotFoundException {
+	public void readRevMatrix(String fileName) throws FileNotFoundException
+	{
 		File f = new File(fileName);
 		Scanner fin = new Scanner(f);
 
 		int i, j;
-		for (i = 0; i < 26; i++) {
+		for (i = 0; i < 26; i++)
+		{
 			for (j = 0; j < 26; j++)
 				RevMatrix[i][j] = fin.nextInt();
 
@@ -153,66 +181,165 @@ public class ConfusionMatrix {
 	}
 
 	// Convert counts to prob
-	public void convertProb() {
+	public void convertProb()
+	{
 		long count = 0;
 		int i, j;
-		for (i = 0; i < 27; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				count += AddMatrix[i][j];
 			}
 		}
 		addCount = count;
-		for (i = 0; i < 27; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				addProb[i][j] = AddMatrix[i][j] * 1.0 / count;
 			}
 		}
 		count = 0;
-		for (i = 0; i < 27; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				count += DelMatrix[i][j];
 			}
 		}
 		delCount = count;
-		for (i = 0; i < 27; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				delProb[i][j] = DelMatrix[i][j] * 1.0 / count;
 			}
 		}
 		count = 0;
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				count += SubMatrix[i][j];
 			}
 		}
 		subCount = count;
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				subProb[i][j] = SubMatrix[i][j] * 1.0 / count;
 			}
 		}
 		count = 0;
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				count += RevMatrix[i][j];
 			}
 		}
 		revCount = count;
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				revProb[i][j] = RevMatrix[i][j] * 1.0 / count;
 			}
 		}
 
 	}
 
+	public void reverseMatrices()
+	{
+		int i, j;
+		int count = 0;
+
+		// The Add Matrix
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
+				if (AddMatrix[i][j] > count)
+					count = AddMatrix[i][j];
+			}
+		}
+		// The Add Matrix
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
+				AddMatrix[i][j] = count - AddMatrix[i][j];
+			}
+		}
+		count = 0;
+		// The Sub Matrix
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
+				if (SubMatrix[i][j] > count)
+					count = SubMatrix[i][j];
+			}
+		}
+		// The Sub Matrix
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
+				SubMatrix[i][j] = count - SubMatrix[i][j];
+			}
+		}
+		count = 0;
+		// The Del Matrix
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 27; j++)
+			{
+				if (DelMatrix[i][j] > count)
+					count = DelMatrix[i][j];
+			}
+		}
+		// The Del Matrix
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 27; j++)
+			{
+				DelMatrix[i][j] = count - DelMatrix[i][j];
+			}
+		}
+		count = 0;
+		// The Rev Matrix
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 27; j++)
+			{
+				if (RevMatrix[i][j] > count)
+					count = RevMatrix[i][j];
+			}
+		}
+		// The Rev Matrix
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 27; j++)
+			{
+				RevMatrix[i][j] = count - RevMatrix[i][j];
+			}
+		}
+
+	}
+
 	// Laplace smoothing.
-	public void smoothMatrix() {
+	public void smoothMatrix()
+	{
 		int i, j;
 		boolean smoothRequired = false;
 		// The Add Matrix
-		for (i = 0; i < 27; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 27; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				if (AddMatrix[i][j] == 0)
 					smoothRequired = true;
 
@@ -220,18 +347,23 @@ public class ConfusionMatrix {
 			if (smoothRequired)
 				break;
 		}
-		if (smoothRequired) {
-			for (i = 0; i < 27; i++) {
-				for (j = 0; j < 26; j++) {
-					AddMatrix[i][j]++;
+		if (smoothRequired)
+		{
+			for (i = 0; i < 27; i++)
+			{
+				for (j = 0; j < 26; j++)
+				{
+					AddMatrix[i][j] += 2;
 				}
 			}
 		}
 
 		smoothRequired = false;
 		// The Del Matrix
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 27; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 27; j++)
+			{
 				if (DelMatrix[i][j] == 0)
 					smoothRequired = true;
 
@@ -239,18 +371,23 @@ public class ConfusionMatrix {
 			if (smoothRequired)
 				break;
 		}
-		if (smoothRequired) {
-			for (i = 0; i < 26; i++) {
-				for (j = 0; j < 27; j++) {
-					DelMatrix[i][j]++;
+		if (smoothRequired)
+		{
+			for (i = 0; i < 26; i++)
+			{
+				for (j = 0; j < 27; j++)
+				{
+					DelMatrix[i][j] += 2;
 				}
 			}
 		}
 
 		smoothRequired = false;
 		// The Sub Matrix
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 26; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 26; j++)
+			{
 				if (SubMatrix[i][j] == 0)
 					smoothRequired = true;
 
@@ -258,18 +395,23 @@ public class ConfusionMatrix {
 			if (smoothRequired)
 				break;
 		}
-		if (smoothRequired) {
-			for (i = 0; i < 26; i++) {
-				for (j = 0; j < 27; j++) {
-					SubMatrix[i][j]++;
+		if (smoothRequired)
+		{
+			for (i = 0; i < 26; i++)
+			{
+				for (j = 0; j < 27; j++)
+				{
+					SubMatrix[i][j] += 2;
 				}
 			}
 		}
 
 		smoothRequired = false;
 		// The Rev Matrix
-		for (i = 0; i < 26; i++) {
-			for (j = 0; j < 27; j++) {
+		for (i = 0; i < 26; i++)
+		{
+			for (j = 0; j < 27; j++)
+			{
 				if (RevMatrix[i][j] == 0)
 					smoothRequired = true;
 
@@ -277,10 +419,13 @@ public class ConfusionMatrix {
 			if (smoothRequired)
 				break;
 		}
-		if (smoothRequired) {
-			for (i = 0; i < 26; i++) {
-				for (j = 0; j < 27; j++) {
-					RevMatrix[i][j]++;
+		if (smoothRequired)
+		{
+			for (i = 0; i < 26; i++)
+			{
+				for (j = 0; j < 27; j++)
+				{
+					RevMatrix[i][j] += 2;
 				}
 			}
 		}

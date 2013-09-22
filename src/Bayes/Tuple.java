@@ -7,6 +7,7 @@ public class Tuple implements Comparable<Tuple>
 	public String word;
 	public long rank;
 	public BigInteger trigram_rank;
+	public BigInteger confusion_rank;
 	
 	public BigInteger overall_rank;
 
